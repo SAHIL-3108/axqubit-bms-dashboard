@@ -1,0 +1,167 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-border: var(--border);
+  --color-ring: var(--ring);
+
+  --color-bms-green: var(--bms-green);
+  --color-bms-amber: var(--bms-amber);
+  --color-bms-red: var(--bms-red);
+}
+
+:root {
+  --background: #0a0c0f;
+  --foreground: #f3f4f6;
+  
+  --card: rgba(16, 20, 24, 0.6);
+  --card-foreground: #f3f4f6;
+  
+  --popover: #0d1117;
+  --popover-foreground: #f3f4f6;
+  
+  --primary: #00d4ff;
+  --primary-foreground: #0a0c0f;
+  
+  --secondary: #161b22;
+  --secondary-foreground: #f3f4f6;
+  
+  --muted: #1f2937;
+  --muted-foreground: #9ca3af;
+  
+  --accent: #00d4ff;
+  --accent-foreground: #0a0c0f;
+  
+  --destructive: #ff3333;
+  --destructive-foreground: #ffffff;
+  
+  --border: rgba(255, 255, 255, 0.08);
+  --input: rgba(255, 255, 255, 0.1);
+  --ring: #00d4ff;
+
+  --radius: 12px;
+
+  /* BMS colors */
+  --bms-green: #00e676;
+  --bms-amber: #ffb300;
+  --bms-red: #ff3333;
+}
+
+/* Force dark theme globally */
+html, body {
+  background-color: #0a0c0f;
+  color: #f3f4f6;
+  font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  overflow-x: hidden;
+  scroll-behavior: smooth;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+}
+
+/* Glassmorphism helpers */
+.glass-panel {
+  background: rgba(16, 20, 24, 0.6);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.glass-panel:hover {
+  border-color: rgba(0, 212, 255, 0.25);
+  box-shadow: 0 8px 32px 0 rgba(0, 212, 255, 0.05);
+}
+
+.glass-card-glow {
+  position: relative;
+  overflow: hidden;
+}
+
+.glass-card-glow::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -150%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(
+    to right,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(0, 212, 255, 0.05) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  transform: skewX(-25deg);
+  transition: 0.75s;
+}
+
+.glass-card-glow:hover::after {
+  left: 150%;
+}
+
+/* Custom Scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #0a0c0f;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 212, 255, 0.3);
+}
+
+/* Glowing text effects */
+.glow-accent {
+  text-shadow: 0 0 10px rgba(0, 212, 255, 0.5);
+}
+
+.glow-green {
+  text-shadow: 0 0 10px rgba(0, 230, 118, 0.5);
+}
+
+.glow-amber {
+  text-shadow: 0 0 10px rgba(255, 179, 0, 0.5);
+}
+
+.glow-red {
+  text-shadow: 0 0 10px rgba(255, 51, 51, 0.5);
+}
+
+/* Led indicator keyframe */
+@keyframes led-pulse {
+  0%, 100% {
+    opacity: 0.4;
+    box-shadow: 0 0 2px currentColor;
+  }
+  50% {
+    opacity: 1;
+    box-shadow: 0 0 8px currentColor;
+  }
+}
+
+.led-pulse {
+  animation: led-pulse 1.5s infinite;
+}

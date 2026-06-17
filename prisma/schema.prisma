@@ -1,0 +1,45 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model TelemetryRecord {
+  id           String   @id @default(uuid())
+  serialNumber String
+  timestamp    DateTime @default(now())
+  soc          Float
+  soh          Float
+  voltage      Float
+  current      Float
+  power        Float
+  packTemp     Float
+  cycleCount   Int
+}
+
+model FaultEvent {
+  id           String    @id @default(uuid())
+  serialNumber String
+  timestamp    DateTime  @default(now())
+  code         String
+  message      String
+  severity     String
+  resolved     Boolean   @default(false)
+  resolvedAt   DateTime?
+}
+
+model AlertConfig {
+  id                 String  @id @default("global-config")
+  emailEnabled       Boolean @default(true)
+  emailRecipient     String  @default("admin@axqubit.com")
+  whatsappEnabled    Boolean @default(false)
+  whatsappRecipient  String  @default("+919999999999")
+  telegramEnabled    Boolean @default(false)
+  telegramRecipient  String  @default("@axqubit_bms_bot")
+  socThreshold       Float   @default(20.0)
+  tempThreshold      Float   @default(55.0)
+  cellDeltaThreshold Float   @default(50.0)
+}
