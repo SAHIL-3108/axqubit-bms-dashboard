@@ -3,8 +3,12 @@
 import React, { useEffect, useState } from 'react';
 import { Settings, Save, Mail, MessageSquare, Send, ShieldAlert, CheckCircle2 } from 'lucide-react';
 import { AlertConfig } from '@/types/bms';
+import { useBmsStore } from '@/store/bmsStore';
 
 export default function AlertConfigComponent() {
+  const activeRole = useBmsStore((state) => state.activeRole);
+  const isViewOnly = activeRole === 'customer';
+
   const [config, setConfig] = useState<AlertConfig>({
     emailEnabled: true,
     emailRecipient: 'admin@axqubit.com',
@@ -21,7 +25,7 @@ export default function AlertConfigComponent() {
   const [saving, setSaving] = useState<boolean>(false);
   const [statusMessage, setStatusMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
-  // Fetch settings from Prisma on mount
+  // Fetch settings from database on mount
   useEffect(() => {
     async function fetchSettings() {
       try {
@@ -43,6 +47,7 @@ export default function AlertConfigComponent() {
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (isViewOnly) return;
     setSaving(true);
     setStatusMessage(null);
 
@@ -58,7 +63,6 @@ export default function AlertConfigComponent() {
 
       setStatusMessage({ type: 'success', text: 'Alert configurations saved successfully!' });
       // Update global store
-      const { useBmsStore } = await import('@/store/bmsStore');
       useBmsStore.getState().setAlertConfig(config);
     } catch (err: any) {
       console.error('Failed to save configuration:', err);
@@ -90,6 +94,11 @@ export default function AlertConfigComponent() {
             <h3 className="text-sm font-bold text-white">System Notification Config</h3>
           </div>
         </div>
+        {isViewOnly && (
+          <span className="text-[9px] font-bold text-[#ffb300] bg-[#ffb300]/10 px-2 py-0.5 rounded uppercase">
+            View Only Mode
+          </span>
+        )}
       </div>
 
       <form onSubmit={handleSave} className="space-y-6">
@@ -113,6 +122,7 @@ export default function AlertConfigComponent() {
                   <input
                     type="checkbox"
                     checked={config.emailEnabled}
+                    disabled={isViewOnly}
                     onChange={(e) => setConfig({ ...config, emailEnabled: e.target.checked })}
                     className="sr-only peer"
                   />
@@ -123,10 +133,11 @@ export default function AlertConfigComponent() {
                 <input
                   type="email"
                   value={config.emailRecipient}
+                  disabled={isViewOnly}
                   onChange={(e) => setConfig({ ...config, emailRecipient: e.target.value })}
                   placeholder="enter.recipient@mail.com"
                   required
-                  className="w-full rounded-lg border border-white/5 bg-white/5 px-3 py-2 text-xs font-mono text-white placeholder-gray-500 focus:border-[#00d4ff] focus:outline-none"
+                  className="w-full rounded-lg border border-white/5 bg-white/5 px-3 py-2 text-xs font-mono text-white placeholder-gray-500 focus:border-[#00d4ff] focus:outline-none disabled:opacity-50"
                 />
               )}
             </div>
@@ -143,20 +154,22 @@ export default function AlertConfigComponent() {
                   <input
                     type="checkbox"
                     checked={config.whatsappEnabled}
+                    disabled={isViewOnly}
                     onChange={(e) => setConfig({ ...config, whatsappEnabled: e.target.checked })}
                     className="sr-only peer"
                   />
-                  <div className="w-8 h-4 bg-white/10 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-gray-300 after:border-gray-300 after:border after:rounded-full after:h-3 after:w-3.5 after:transition-all peer-checked:bg-[#00e676]" />
+                  <div className="w-8 h-4 bg-white/10 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-gray-300 after:border-gray-300 after:border after:rounded-full after:h-3 after:w-3.5 after:transition-all peer-checked:bg-[#00d4ff]" />
                 </label>
               </div>
               {config.whatsappEnabled && (
                 <input
                   type="tel"
                   value={config.whatsappRecipient}
+                  disabled={isViewOnly}
                   onChange={(e) => setConfig({ ...config, whatsappRecipient: e.target.value })}
                   placeholder="e.g. +919999999999"
                   required
-                  className="w-full rounded-lg border border-white/5 bg-white/5 px-3 py-2 text-xs font-mono text-white placeholder-gray-500 focus:border-[#00e676] focus:outline-none"
+                  className="w-full rounded-lg border border-white/5 bg-white/5 px-3 py-2 text-xs font-mono text-white placeholder-gray-500 focus:border-[#00d4ff] focus:outline-none disabled:opacity-50"
                 />
               )}
             </div>
@@ -173,6 +186,7 @@ export default function AlertConfigComponent() {
                   <input
                     type="checkbox"
                     checked={config.telegramEnabled}
+                    disabled={isViewOnly}
                     onChange={(e) => setConfig({ ...config, telegramEnabled: e.target.checked })}
                     className="sr-only peer"
                   />
@@ -183,10 +197,11 @@ export default function AlertConfigComponent() {
                 <input
                   type="text"
                   value={config.telegramRecipient}
+                  disabled={isViewOnly}
                   onChange={(e) => setConfig({ ...config, telegramRecipient: e.target.value })}
                   placeholder="e.g. @channel_or_chat_id"
                   required
-                  className="w-full rounded-lg border border-white/5 bg-white/5 px-3 py-2 text-xs font-mono text-white placeholder-gray-500 focus:border-[#00d4ff] focus:outline-none"
+                  className="w-full rounded-lg border border-white/5 bg-white/5 px-3 py-2 text-xs font-mono text-white placeholder-gray-500 focus:border-[#00d4ff] focus:outline-none disabled:opacity-50"
                 />
               )}
             </div>
@@ -218,10 +233,11 @@ export default function AlertConfigComponent() {
                         <input
                           type="number"
                           value={config.socThreshold}
+                          disabled={isViewOnly}
                           onChange={(e) => setConfig({ ...config, socThreshold: parseInt(e.target.value, 10) || 0 })}
                           min={0}
                           max={100}
-                          className="w-16 rounded border border-white/10 bg-white/5 py-1 text-center font-mono font-bold text-white focus:border-[#00d4ff] focus:outline-none"
+                          className="w-16 rounded border border-white/10 bg-white/5 py-1 text-center font-mono font-bold text-white focus:border-[#00d4ff] focus:outline-none disabled:opacity-50"
                         />
                         <span className="text-[10px] text-[#9ca3af] font-bold">%</span>
                       </div>
@@ -239,10 +255,11 @@ export default function AlertConfigComponent() {
                         <input
                           type="number"
                           value={config.tempThreshold}
+                          disabled={isViewOnly}
                           onChange={(e) => setConfig({ ...config, tempThreshold: parseInt(e.target.value, 10) || 0 })}
                           min={0}
                           max={120}
-                          className="w-16 rounded border border-white/10 bg-white/5 py-1 text-center font-mono font-bold text-white focus:border-[#00d4ff] focus:outline-none"
+                          className="w-16 rounded border border-white/10 bg-white/5 py-1 text-center font-mono font-bold text-white focus:border-[#00d4ff] focus:outline-none disabled:opacity-50"
                         />
                         <span className="text-[10px] text-[#9ca3af] font-bold">°C</span>
                       </div>
@@ -260,10 +277,11 @@ export default function AlertConfigComponent() {
                         <input
                           type="number"
                           value={config.cellDeltaThreshold}
+                          disabled={isViewOnly}
                           onChange={(e) => setConfig({ ...config, cellDeltaThreshold: parseInt(e.target.value, 10) || 0 })}
                           min={0}
                           max={500}
-                          className="w-16 rounded border border-white/10 bg-white/5 py-1 text-center font-mono font-bold text-white focus:border-[#00d4ff] focus:outline-none"
+                          className="w-16 rounded border border-white/10 bg-white/5 py-1 text-center font-mono font-bold text-white focus:border-[#00d4ff] focus:outline-none disabled:opacity-50"
                         />
                         <span className="text-[10px] text-[#9ca3af] font-bold">mV</span>
                       </div>
@@ -294,16 +312,18 @@ export default function AlertConfigComponent() {
         )}
 
         {/* Form Actions */}
-        <div className="flex justify-end pt-3 border-t border-white/5">
-          <button
-            type="submit"
-            disabled={saving}
-            className="flex items-center space-x-2 rounded-lg bg-gradient-to-r from-[#00d4ff] to-[#00a3c4] px-5 py-2.5 text-xs font-bold text-background shadow-lg shadow-[#00d4ff]/10 hover:opacity-90 transition-all cursor-pointer disabled:opacity-50"
-          >
-            <Save className="h-4 w-4 stroke-[2.5]" />
-            <span>{saving ? 'SAVING REGISTERS...' : 'SAVE ALARM CONFIG'}</span>
-          </button>
-        </div>
+        {!isViewOnly && (
+          <div className="flex justify-end pt-3 border-t border-white/5">
+            <button
+              type="submit"
+              disabled={saving}
+              className="flex items-center space-x-2 rounded-lg bg-gradient-to-r from-[#00d4ff] to-[#00a3c4] px-5 py-2.5 text-xs font-bold text-background shadow-lg shadow-[#00d4ff]/10 hover:opacity-90 transition-all cursor-pointer disabled:opacity-50"
+            >
+              <Save className="h-4 w-4 stroke-[2.5]" />
+              <span>{saving ? 'SAVING REGISTERS...' : 'SAVE ALARM CONFIG'}</span>
+            </button>
+          </div>
+        )}
       </form>
     </div>
   );

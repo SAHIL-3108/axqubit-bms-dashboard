@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Cpu, Terminal, ArrowUpCircle, Play, CheckCircle2, ShieldAlert } from 'lucide-react';
+import { Cpu, Terminal, ArrowUpCircle, Play, CheckCircle2, ShieldAlert, Lock } from 'lucide-react';
 import { useOta } from '@/hooks/useOta';
 import { useBmsStore } from '@/store/bmsStore';
 
@@ -20,6 +20,7 @@ const mockOtaHistory: OtaHistoryItem[] = [
 
 export default function OtaUpdate() {
   const telemetry = useBmsStore((state) => state.telemetry);
+  const activeRole = useBmsStore((state) => state.activeRole);
   const serialNumber = telemetry?.serialNumber || 'BMS6000-LFP-01';
 
   const { otaState, startOtaUpdate, resetOta } = useOta(serialNumber);
@@ -29,8 +30,11 @@ export default function OtaUpdate() {
   );
   const [targetVersion, setTargetVersion] = useState('v1.1.0');
 
+  const isAdmin = activeRole === 'admin';
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!isAdmin) return;
     startOtaUpdate(firmwareUrl, targetVersion);
   };
 
@@ -51,6 +55,12 @@ export default function OtaUpdate() {
             <h3 className="text-sm font-bold text-white">Over-the-Air (OTA) Firmware Update</h3>
           </div>
         </div>
+        {!isAdmin && (
+          <span className="text-[9px] font-bold text-[#ff3333] bg-[#ff3333]/10 px-2 py-0.5 rounded uppercase flex items-center space-x-1 border border-[#ff3333]/15">
+            <Lock className="h-3 w-3" />
+            <span>Admin Required</span>
+          </span>
+        )}
       </div>
 
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
@@ -60,7 +70,18 @@ export default function OtaUpdate() {
             Firmware Flasher
           </h4>
 
-          {!isUpdating && !isComplete && !isError ? (
+          {!isAdmin ? (
+            /* Lock Panel */
+            <div className="rounded-lg border border-[#ff3333]/15 bg-[#ff3333]/5 p-6 flex flex-col items-center justify-center text-center space-y-3">
+              <Lock className="h-8 w-8 text-[#ff3333]" />
+              <div>
+                <p className="text-xs font-bold text-white uppercase tracking-wide">Flasher Terminal Locked</p>
+                <p className="text-[10px] text-[#9ca3af] mt-1">
+                  Over-the-Air write permissions require Administrative privileges. Please switch your role in the header to modify firmware.
+                </p>
+              </div>
+            </div>
+          ) : !isUpdating && !isComplete && !isError ? (
             <form onSubmit={handleSubmit} className="space-y-4 rounded-lg bg-white/5 border border-white/5 p-4">
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1">

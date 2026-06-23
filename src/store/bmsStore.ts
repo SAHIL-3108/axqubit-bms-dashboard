@@ -1,5 +1,16 @@
 import { create } from 'zustand';
-import { BmsTelemetry, CellData, BmsHistoryItem, FaultEvent, OtaState, AlertConfig } from '@/types/bms';
+import {
+  BmsTelemetry,
+  CellData,
+  BmsHistoryItem,
+  FaultEvent,
+  OtaState,
+  AlertConfig,
+  UserRole,
+  FleetPackInfo,
+  CommProtocolState,
+  ProtocolSetting,
+} from '@/types/bms';
 
 interface BmsState {
   telemetry: BmsTelemetry | null;
@@ -9,6 +20,12 @@ interface BmsState {
   connectionState: 'connected' | 'connecting' | 'disconnected';
   otaState: OtaState;
   alertConfig: AlertConfig;
+
+  // New V2.0 State
+  activeRole: UserRole;
+  selectedSerialNumber: string;
+  fleet: FleetPackInfo[];
+  commProtocols: CommProtocolState;
 
   // Actions
   setTelemetry: (telemetry: BmsTelemetry) => void;
@@ -25,6 +42,12 @@ interface BmsState {
   updateOtaState: (data: Partial<OtaState>) => void;
   setAlertConfig: (config: AlertConfig) => void;
   updateAlertConfig: (data: Partial<AlertConfig>) => void;
+
+  // New V2.0 Actions
+  setActiveRole: (role: UserRole) => void;
+  setSelectedSerialNumber: (sn: string) => void;
+  setFleet: (fleet: FleetPackInfo[]) => void;
+  updateCommProtocol: (protocol: keyof CommProtocolState, data: Partial<ProtocolSetting>) => void;
 }
 
 const initialOtaState: OtaState = {
@@ -45,16 +68,24 @@ const initialAlertConfig: AlertConfig = {
   telegramRecipient: '@axqubit_bms_bot',
   socThreshold: 20,
   tempThreshold: 55,
-  cellDeltaThreshold: 50, // 50 mV
+  cellDeltaThreshold: 50,
 };
 
 const initialCells: CellData[] = Array.from({ length: 6 }, (_, i) => ({
   cellNumber: i + 1,
-  voltage: 3.3, // Nominal voltage of LFP
+  voltage: 3.3,
   temp: 25.0,
   isBalancing: false,
   deltaV: 0,
 }));
+
+const initialCommProtocols: CommProtocolState = {
+  uart: { enabled: true, status: 'connected', detail: '115200 bps (8N1)' },
+  can: { enabled: true, status: 'connected', detail: '500 Kbps (2.0B)' },
+  rs485: { enabled: false, status: 'disabled', detail: 'Node ID: 0x01' },
+  ble: { enabled: false, status: 'disabled', detail: 'Disconnected' },
+  mqtt: { enabled: true, status: 'connected', detail: 'HiveMQ Secure Websocket' },
+};
 
 export const useBmsStore = create<BmsState>((set) => ({
   telemetry: null,
@@ -64,6 +95,12 @@ export const useBmsStore = create<BmsState>((set) => ({
   connectionState: 'disconnected',
   otaState: initialOtaState,
   alertConfig: initialAlertConfig,
+
+  // New V2.0 State
+  activeRole: 'admin',
+  selectedSerialNumber: 'AXQ-EV-01',
+  fleet: [],
+  commProtocols: initialCommProtocols,
 
   setTelemetry: (telemetry) => set({ telemetry }),
   updateTelemetry: (data) =>
@@ -80,9 +117,8 @@ export const useBmsStore = create<BmsState>((set) => ({
   setHistory: (history) => set({ history }),
   addHistoryItem: (item) =>
     set((state) => {
-      // Limit history to last 120 items (1 minute at 500ms intervals, or 2 mins at 1s)
       const newHistory = [...state.history, item];
-      if (newHistory.length > 120) {
+      if (newHistory.length > 60) {
         newHistory.shift();
       }
       return { history: newHistory };
@@ -90,7 +126,6 @@ export const useBmsStore = create<BmsState>((set) => ({
   setFaults: (faults) => set({ faults }),
   addFault: (fault) =>
     set((state) => {
-      // Don't add duplicate active faults
       if (state.faults.some((f) => f.code === fault.code && !f.resolved)) {
         return state;
       }
@@ -111,4 +146,16 @@ export const useBmsStore = create<BmsState>((set) => ({
   setAlertConfig: (alertConfig) => set({ alertConfig }),
   updateAlertConfig: (data) =>
     set((state) => ({ alertConfig: { ...state.alertConfig, ...data } })),
+
+  // New V2.0 Actions
+  setActiveRole: (role) => set({ activeRole: role }),
+  setSelectedSerialNumber: (sn) => set({ selectedSerialNumber: sn }),
+  setFleet: (fleet) => set({ fleet }),
+  updateCommProtocol: (protocol, data) =>
+    set((state) => ({
+      commProtocols: {
+        ...state.commProtocols,
+        [protocol]: { ...state.commProtocols[protocol], ...data },
+      },
+    })),
 }));

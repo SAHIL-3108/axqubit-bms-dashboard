@@ -1,14 +1,14 @@
 export interface CellData {
   cellNumber: number; // 1 to 6
-  voltage: number;    // In Volts, e.g., 3.325V
+  voltage: number;    // In Volts
   temp: number;       // In °C
   isBalancing: boolean;
   deltaV: number;     // In Volts, cell voltage - pack average
 }
 
 export interface ProtectionFlags {
-  ovp: boolean;  // Over Voltage Protection (Pack)
-  uvp: boolean;  // Under Voltage Protection (Pack)
+  ovp: boolean;  // Over Voltage Protection
+  uvp: boolean;  // Under Voltage Protection
   ocp: boolean;  // Over Current Protection
   scp: boolean;  // Short Circuit Protection
   otp: boolean;  // Over Temperature Protection
@@ -20,21 +20,21 @@ export interface ProtectionFlags {
 export interface BmsTelemetry {
   serialNumber: string;
   timestamp: string;
-  soc: number;              // 0 to 100%
-  soh: number;              // 0 to 100%
-  voltage: number;          // In Volts
-  current: number;          // In Amperes (positive for charge, negative for discharge)
-  power: number;            // In Watts
-  packTemp: number;         // In °C
+  soc: number;
+  soh: number;
+  voltage: number;
+  current: number;
+  power: number;
+  packTemp: number;
   cycleCount: number;
   isCharging: boolean;
   isDischarging: boolean;
   isBalancing: boolean;
   status: 'normal' | 'warning' | 'fault' | 'offline';
   chargingMode: 'idle' | 'bulk' | 'absorption' | 'float';
-  remainingCapacity: number; // In Ah
-  nominalCapacity: number;   // In Ah
-  energyThroughput: number;  // In kWh
+  remainingCapacity: number;
+  nominalCapacity: number;
+  energyThroughput: number;
   protectionFlags: ProtectionFlags;
 }
 
@@ -52,7 +52,7 @@ export type OtaStatus = 'idle' | 'checking' | 'ready' | 'downloading' | 'flashin
 
 export interface OtaState {
   status: OtaStatus;
-  progress: number; // 0 to 100
+  progress: number;
   currentVersion: string;
   latestVersion: string;
   message: string;
@@ -67,9 +67,9 @@ export interface AlertConfig {
   whatsappRecipient: string;
   telegramEnabled: boolean;
   telegramRecipient: string;
-  socThreshold: number;         // Below this triggers warning
-  tempThreshold: number;        // Above this triggers warning
-  cellDeltaThreshold: number;   // Above this (in mV) triggers warning (e.g. 50mV)
+  socThreshold: number;
+  tempThreshold: number;
+  cellDeltaThreshold: number;
 }
 
 export interface BmsHistoryItem {
@@ -81,4 +81,37 @@ export interface BmsHistoryItem {
   current: number;
   power: number;
   packTemp: number;
+}
+
+// ================== NEW V2.0 TYPES ==================
+
+export type UserRole = 'admin' | 'engineer' | 'customer';
+
+export type PackApplication = 'EV' | 'Robotics' | 'Drone' | 'Solar ESS' | 'OEM Pack';
+
+export interface FleetPackInfo {
+  serialNumber: string;
+  application: PackApplication;
+  soc: number;
+  soh: number;
+  voltage: number;
+  current: number;
+  packTemp: number;
+  cycleCount: number;
+  status: 'normal' | 'warning' | 'fault' | 'offline';
+  chargingMode: 'idle' | 'bulk' | 'absorption' | 'float';
+}
+
+export interface ProtocolSetting {
+  enabled: boolean;
+  status: 'connected' | 'error' | 'disabled';
+  detail: string; // e.g. "115200 bps", "500 Kbps", "Node ID: 0x01", "-65 dBm", "Broker Active"
+}
+
+export interface CommProtocolState {
+  uart: ProtocolSetting;
+  can: ProtocolSetting;
+  rs485: ProtocolSetting;
+  ble: ProtocolSetting;
+  mqtt: ProtocolSetting;
 }
