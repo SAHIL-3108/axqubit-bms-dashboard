@@ -7,11 +7,19 @@ import { useBmsStore } from '@/store/bmsStore';
 export default function FaultHistory() {
   const faults = useBmsStore((state) => state.faults);
   const resolveFault = useBmsStore((state) => state.resolveFault);
+  const [mounted, setMounted] = React.useState(false);
+
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // Format Date String helper
   const formatDate = (isoString: string) => {
     try {
       const date = new Date(isoString);
+      if (!mounted) {
+        return isoString;
+      }
       return `${date.toLocaleDateString()} ${date.toLocaleTimeString([], { hour12: false })}`;
     } catch {
       return isoString;
@@ -108,7 +116,7 @@ export default function FaultHistory() {
                     <td className="py-3 px-3 max-w-xs truncate">{fault.message}</td>
 
                     {/* Logged At */}
-                    <td className="py-3 px-3 text-[#9ca3af] whitespace-nowrap">
+                    <td className="py-3 px-3 text-[#9ca3af] whitespace-nowrap" suppressHydrationWarning>
                       {formatDate(fault.timestamp)}
                     </td>
 
