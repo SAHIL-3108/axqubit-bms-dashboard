@@ -1,7 +1,6 @@
 'use client';
 
-import React, { Suspense, useState, useEffect } from 'react';
-import { useSearchParams } from 'next/navigation';
+import React, { Suspense, useEffect } from 'react';
 import { useBmsStore } from '@/store/bmsStore';
 
 // Tabs Views
@@ -32,8 +31,6 @@ import CommInterfaces from '@/components/device/CommInterfaces';
 import { Battery, ShieldCheck, Thermometer, Zap, Layers, Cpu, BookOpen } from 'lucide-react';
 
 function DashboardContent() {
-  const [activeTab, setActiveTab] = useState<'fleet' | 'diagnostics' | 'api-docs'>('fleet');
-  
   const {
     telemetry,
     cells,
@@ -42,6 +39,9 @@ function DashboardContent() {
     addHistoryItem,
     selectedSerialNumber,
     setConnectionState,
+    // Shared nav state driven by Sidebar
+    activeDashTab,
+    setActiveDashTab,
   } = useBmsStore();
 
   // Watch for selected pack changes and fetch live readings
@@ -52,18 +52,16 @@ function DashboardContent() {
       if (!selectedSerialNumber) return;
 
       try {
-        // Fetch from FastAPI backend
         const res = await fetch(`/api/bms/live?serialNumber=${selectedSerialNumber}`);
         if (!res.ok) throw new Error('API failure');
-        
+
         const data = await res.json();
-        
+
         if (isSubscribed) {
-          setConnectionState('disconnected'); // Signifies fallback/rest mode
+          setConnectionState('disconnected');
           setTelemetry(data.telemetry);
           setCells(data.cells);
 
-          // Add to rolling chart history
           addHistoryItem({
             id: Math.random().toString(),
             timestamp: data.telemetry.timestamp,
@@ -81,7 +79,7 @@ function DashboardContent() {
     }
 
     fetchLiveReading();
-    const interval = setInterval(fetchLiveReading, 1000); // refresh every 1s
+    const interval = setInterval(fetchLiveReading, 1000);
 
     return () => {
       isSubscribed = false;
@@ -89,87 +87,92 @@ function DashboardContent() {
     };
   }, [selectedSerialNumber, setTelemetry, setCells, addHistoryItem, setConnectionState]);
 
-  const packAverage = cells.length > 0
-    ? cells.reduce((sum, c) => sum + c.voltage, 0) / cells.length
-    : 3.3;
+  const packAverage =
+    cells.length > 0
+      ? cells.reduce((sum, c) => sum + c.voltage, 0) / cells.length
+      : 3.3;
 
   return (
     <div className="space-y-6 pb-16">
-      {/* Navigation Tabs Bar */}
+      {/* ── Tab Bar ─────────────────────────────────────────────── */}
       <div className="flex border-b border-white/5 pb-2 space-x-6">
         <button
-          onClick={() => setActiveTab('fleet')}
+          onClick={() => setActiveDashTab('fleet')}
           className={`flex items-center space-x-2 pb-2 text-sm font-bold border-b-2 transition-all cursor-pointer ${
-            activeTab === 'fleet'
+            activeDashTab === 'fleet'
               ? 'border-[#00d4ff] text-[#00d4ff]'
               : 'border-transparent text-[#9ca3af] hover:text-white'
           }`}
         >
-          <Layers className="h-4.5 w-4.5" />
+          <Layers className="h-4 w-4" />
           <span>Fleet Overview Matrix</span>
         </button>
 
         <button
           id="pack-diagnostics-view"
-          onClick={() => setActiveTab('diagnostics')}
+          onClick={() => setActiveDashTab('diagnostics')}
           className={`flex items-center space-x-2 pb-2 text-sm font-bold border-b-2 transition-all cursor-pointer ${
-            activeTab === 'diagnostics'
+            activeDashTab === 'diagnostics'
               ? 'border-[#00d4ff] text-[#00d4ff]'
               : 'border-transparent text-[#9ca3af] hover:text-white'
           }`}
         >
-          <Cpu className="h-4.5 w-4.5" />
+          <Cpu className="h-4 w-4" />
           <span>Pack Diagnostics Stream</span>
         </button>
 
         <button
-          onClick={() => setActiveTab('api-docs')}
+          onClick={() => setActiveDashTab('api-docs')}
           className={`flex items-center space-x-2 pb-2 text-sm font-bold border-b-2 transition-all cursor-pointer ${
-            activeTab === 'api-docs'
+            activeDashTab === 'api-docs'
               ? 'border-[#00d4ff] text-[#00d4ff]'
               : 'border-transparent text-[#9ca3af] hover:text-white'
           }`}
         >
-          <BookOpen className="h-4.5 w-4.5" />
+          <BookOpen className="h-4 w-4" />
           <span>REST API Documentation</span>
         </button>
       </div>
 
-      {/* Workspace Area */}
-      <div>
-        {activeTab === 'fleet' && (
-          <div className="space-y-6 animate-fadeIn">
-            <div>
-              <span className="text-[10px] font-bold uppercase tracking-wider text-[#9ca3af] font-mono">
-                Real-Time Fleet registers
-              </span>
-              <h3 className="text-lg font-black text-white">Multi-Pack Core Operations</h3>
-            </div>
-            <FleetOverview />
+      {/* ── Fleet Tab ────────────────────────────────────────────── */}
+      {activeDashTab === 'fleet' && (
+        <div className="space-y-6 animate-fadeIn">
+          <div>
+            <span className="text-[10px] font-bold uppercase tracking-wider text-[#9ca3af] font-mono">
+              Real-Time Fleet Registers
+            </span>
+            <h3 className="text-lg font-black text-white">Multi-Pack Core Operations</h3>
           </div>
-        )}
+          <FleetOverview />
+        </div>
+      )}
 
-        {activeTab === 'diagnostics' && (
-          <div className="space-y-8 animate-fadeIn">
-            {/* Title */}
-            <div>
-              <span className="text-[10px] font-bold uppercase tracking-wider text-[#9ca3af] font-mono">
-                Diagnostic Node: {selectedSerialNumber}
-              </span>
-              <h3 className="text-lg font-black text-white">Pack Telemetry and Balancing Registers</h3>
-            </div>
+      {/* ── Diagnostics Tab ──────────────────────────────────────── */}
+      {activeDashTab === 'diagnostics' && (
+        <div className="space-y-10 animate-fadeIn">
+          {/* Title */}
+          <div>
+            <span className="text-[10px] font-bold uppercase tracking-wider text-[#9ca3af] font-mono">
+              Diagnostic Node: {selectedSerialNumber}
+            </span>
+            <h3 className="text-lg font-black text-white">Pack Telemetry and Balancing Registers</h3>
+          </div>
 
-            {/* 1. OVERVIEW ROW */}
+          {/* ① OVERVIEW ─────────────────────────────────────────── */}
+          <section id="section-overview" className="scroll-mt-6">
+            <p className="mb-4 text-[10px] font-extrabold uppercase tracking-widest text-[#4b5563]">
+              ▸ Overview
+            </p>
             <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-              {/* Semicircle Gauge Card */}
+              {/* SOC Gauge */}
               <div className="glass-panel flex flex-col items-center justify-center rounded-xl p-5">
                 <SocGauge soc={telemetry?.soc || 0} isBalancing={telemetry?.isBalancing} />
               </div>
 
-              {/* Status Mode Card */}
+              {/* Status Card */}
               <StatusCard telemetry={telemetry} />
 
-              {/* Metric Cards Grid */}
+              {/* Metric Cards */}
               <div className="grid grid-cols-2 gap-4">
                 <MetricCard
                   label="Pack Voltage"
@@ -183,7 +186,11 @@ function DashboardContent() {
                   value={telemetry?.current?.toFixed(1) || '0.0'}
                   unit="A"
                   icon={telemetry?.current && telemetry.current > 0 ? Battery : ShieldCheck}
-                  iconClassName={telemetry?.current && telemetry.current > 0 ? 'text-[#00e676]' : 'text-[#00d4ff]'}
+                  iconClassName={
+                    telemetry?.current && telemetry.current > 0
+                      ? 'text-[#00e676]'
+                      : 'text-[#00d4ff]'
+                  }
                   subtext="Net charge current"
                 />
                 <MetricCard
@@ -204,35 +211,55 @@ function DashboardContent() {
                 />
               </div>
             </div>
+          </section>
 
-            {/* 2. LIVE GAUGE GRID */}
+          {/* ② LIVE READINGS ────────────────────────────────────── */}
+          <section id="section-live" className="scroll-mt-6">
+            <p className="mb-4 text-[10px] font-extrabold uppercase tracking-widest text-[#4b5563]">
+              ▸ Live Readings
+            </p>
             <LiveGrid />
+          </section>
 
-            {/* 3. CELL BALANCE PANEL */}
-            <div className="space-y-4">
-              <h3 className="text-sm font-bold text-white uppercase tracking-wider">6S Cell Symmetry Balance</h3>
-              <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
-                {cells.map((cell) => (
-                  <CellCard key={cell.cellNumber} cell={cell} packAverage={packAverage} />
-                ))}
-              </div>
+          {/* ③ CELL BALANCE ─────────────────────────────────────── */}
+          <section id="section-cells" className="scroll-mt-6 space-y-4">
+            <p className="mb-1 text-[10px] font-extrabold uppercase tracking-widest text-[#4b5563]">
+              ▸ Cell Balance
+            </p>
+            <h3 className="text-sm font-bold text-white uppercase tracking-wider">
+              6S Cell Symmetry Balance
+            </h3>
+            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
+              {cells.map((cell) => (
+                <CellCard key={cell.cellNumber} cell={cell} packAverage={packAverage} />
+              ))}
             </div>
 
-            {/* 4. REALTIME CHARTS GRID (Recharts) */}
-            <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+            {/* Realtime charts below cell balance */}
+            <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 pt-2">
               <VoltageChart />
               <CurrentChart />
               <TempChart />
               <PowerChart />
             </div>
+          </section>
 
-            {/* 5. PROTECTIONS & ALERTS */}
+          {/* ④ PROTECTIONS ──────────────────────────────────────── */}
+          <section id="section-protections" className="scroll-mt-6">
+            <p className="mb-4 text-[10px] font-extrabold uppercase tracking-widest text-[#4b5563]">
+              ▸ Protections
+            </p>
             <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
               <ProtectionFlags />
               <FaultHistory />
             </div>
+          </section>
 
-            {/* 6. AI DIAGNOSTICS & ANALYTICS */}
+          {/* ⑤ AI DIAGNOSTICS ───────────────────────────────────── */}
+          <section id="section-ai" className="scroll-mt-6">
+            <p className="mb-4 text-[10px] font-extrabold uppercase tracking-widest text-[#4b5563]">
+              ▸ AI Diagnostics
+            </p>
             <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
               <div className="lg:col-span-2">
                 <AiInsights />
@@ -241,36 +268,57 @@ function DashboardContent() {
                 <AnalyticsPanel />
               </div>
             </div>
+          </section>
 
-            {/* 7. TRANSCEIVERS CONFIG */}
+          {/* ⑥ COMM INTERFACES ─────────────────────────────────── */}
+          <section id="section-comm" className="scroll-mt-6">
+            <p className="mb-4 text-[10px] font-extrabold uppercase tracking-widest text-[#4b5563]">
+              ▸ Communication Interfaces
+            </p>
             <CommInterfaces />
+          </section>
 
-            {/* 8. ALERT CONFIGURATIONS */}
+          {/* ⑦ ALERTS CONFIG ────────────────────────────────────── */}
+          <section id="section-alerts" className="scroll-mt-6">
+            <p className="mb-4 text-[10px] font-extrabold uppercase tracking-widest text-[#4b5563]">
+              ▸ Alerts Config
+            </p>
             <AlertConfig />
+          </section>
 
-            {/* 9. DEVICE INFO & OTA FLASHER */}
+          {/* ⑧ DEVICE & OTA ─────────────────────────────────────── */}
+          <section id="section-device" className="scroll-mt-6">
+            <p className="mb-4 text-[10px] font-extrabold uppercase tracking-widest text-[#4b5563]">
+              ▸ Device & OTA
+            </p>
             <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
               <DeviceInfo />
               <OtaUpdate />
             </div>
+          </section>
 
-            {/* 10. QR ACCESS CODE */}
+          {/* ⑨ QR SCAN ─────────────────────────────────────────── */}
+          <section id="section-qr" className="scroll-mt-6">
+            <p className="mb-4 text-[10px] font-extrabold uppercase tracking-widest text-[#4b5563]">
+              ▸ QR Scan
+            </p>
             <QrAccess />
-          </div>
-        )}
+          </section>
+        </div>
+      )}
 
-        {activeTab === 'api-docs' && (
-          <div className="space-y-6 animate-fadeIn">
-            <div>
-              <span className="text-[10px] font-bold uppercase tracking-wider text-[#9ca3af] font-mono">
-                API Registries
-              </span>
-              <h3 className="text-lg font-black text-white">OEM System Integration Guide</h3>
-            </div>
-            <ApiDocs />
+      {/* ── API Docs Tab ─────────────────────────────────────────── */}
+      {activeDashTab === 'api-docs' && (
+        <div className="space-y-6 animate-fadeIn">
+          <div>
+            <span className="text-[10px] font-bold uppercase tracking-wider text-[#9ca3af] font-mono">
+              API Registries
+            </span>
+            <h3 className="text-lg font-black text-white">OEM System Integration Guide</h3>
           </div>
-        )}
-      </div>
+          <ApiDocs />
+        </div>
+      )}
     </div>
   );
 }

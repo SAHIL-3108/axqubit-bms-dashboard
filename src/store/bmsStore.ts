@@ -12,6 +12,9 @@ import {
   ProtocolSetting,
 } from '@/types/bms';
 
+// Dashboard navigation tab type
+export type DashTab = 'fleet' | 'diagnostics' | 'api-docs';
+
 interface BmsState {
   telemetry: BmsTelemetry | null;
   cells: CellData[];
@@ -26,6 +29,10 @@ interface BmsState {
   selectedSerialNumber: string;
   fleet: FleetPackInfo[];
   commProtocols: CommProtocolState;
+
+  // Shared navigation state (sidebar ↔ dashboard)
+  activeDashTab: DashTab;
+  pendingScrollId: string | null; // section id to scroll to after tab switch
 
   // Actions
   setTelemetry: (telemetry: BmsTelemetry) => void;
@@ -48,6 +55,11 @@ interface BmsState {
   setSelectedSerialNumber: (sn: string) => void;
   setFleet: (fleet: FleetPackInfo[]) => void;
   updateCommProtocol: (protocol: keyof CommProtocolState, data: Partial<ProtocolSetting>) => void;
+
+  // Navigation actions
+  setActiveDashTab: (tab: DashTab) => void;
+  setPendingScrollId: (id: string | null) => void;
+  navigateTo: (tab: DashTab, scrollId?: string) => void;
 }
 
 const initialOtaState: OtaState = {
@@ -101,6 +113,10 @@ export const useBmsStore = create<BmsState>((set) => ({
   selectedSerialNumber: 'AXQ-EV-01',
   fleet: [],
   commProtocols: initialCommProtocols,
+
+  // Shared navigation state
+  activeDashTab: 'fleet',
+  pendingScrollId: null,
 
   setTelemetry: (telemetry) => set({ telemetry }),
   updateTelemetry: (data) =>
@@ -158,4 +174,9 @@ export const useBmsStore = create<BmsState>((set) => ({
         [protocol]: { ...state.commProtocols[protocol], ...data },
       },
     })),
+
+  // Navigation actions
+  setActiveDashTab: (tab) => set({ activeDashTab: tab }),
+  setPendingScrollId: (id) => set({ pendingScrollId: id }),
+  navigateTo: (tab, scrollId) => set({ activeDashTab: tab, pendingScrollId: scrollId ?? null }),
 }));

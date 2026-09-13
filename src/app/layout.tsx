@@ -1,8 +1,8 @@
 import type { Metadata, Viewport } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
-import Sidebar from '@/components/layout/Sidebar';
-import Topbar from '@/components/layout/Topbar';
+import HeaderNav from '@/components/website/HeaderNav';
+import Footer from '@/components/website/Footer';
 
 const inter = Inter({
   subsets: ['latin'],
@@ -16,9 +16,24 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: 'AXQUBIT BMS6000 Smart Battery Management System Dashboard',
+  title: 'AXQUBIT Technologies | Next-Gen BMS, Power Electronics & Edge AI Vision',
   description:
-    'Advanced IoT SaaS battery intelligence, cell diagnostics, SOH predictions, and real-time telemetry for AXQUBIT Technologies BMS6000 Series.',
+    'Industrial-grade Battery Management Systems (BMS6000), Active Balancing, Industrial SMPS, Pure Sine Inverters, UPS Systems, and Edge AI Vision.',
+  keywords: [
+    'AXQUBIT',
+    'BMS',
+    'Battery Management System',
+    'BMS6000',
+    'LiFePO4 BMS',
+    'Active Balancing',
+    'Electric Vehicle BMS',
+    'Solar ESS',
+    'Power Supplies',
+    'SMPS',
+    'Inverters',
+    'ANPR',
+    'Vadodara Gujarat'
+  ],
 };
 
 export default function RootLayout({
@@ -27,23 +42,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${inter.variable} dark h-full overflow-hidden`} suppressHydrationWarning>
-      <body className="h-full bg-[#0a0c0f] text-[#f3f4f6] antialiased" suppressHydrationWarning>
-        <div className="flex h-screen w-screen overflow-hidden">
-          {/* Sidebar */}
-          <Sidebar />
-
-          {/* Main workspace */}
-          <div className="flex flex-1 flex-col overflow-hidden">
-            {/* Topbar */}
-            <Topbar />
-
-            {/* Scrollable page body */}
-            <main className="flex-1 overflow-y-auto overflow-x-hidden p-6 md:p-8">
-              {children}
-            </main>
-          </div>
+    <html lang="en" className={`${inter.variable} dark h-full`} suppressHydrationWarning>
+      <body className="min-h-full bg-[#0a0c0f] text-[#f3f4f6] antialiased flex flex-col font-sans selection:bg-cyan-500 selection:text-black" suppressHydrationWarning>
+        <HeaderNav />
+        <div className="flex-1">
+          {children}
         </div>
+        <Footer />
       </body>
     </html>
   );
