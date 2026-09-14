@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { 
@@ -9,47 +9,65 @@ import {
   MapPin, 
   Mail, 
   Phone, 
-  Globe, 
   ArrowRight, 
-  Cpu, 
-  CheckCircle2 
+  CheckCircle2,
+  MessageSquare,
+  Send,
+  Star
 } from 'lucide-react';
+import { GithubIcon, LinkedinIcon, TwitterXIcon, YoutubeIcon } from './SocialIcons';
 
 export default function Footer() {
   const pathname = usePathname();
+  const [newsletterEmail, setNewsletterEmail] = useState('');
+  const [subscribed, setSubscribed] = useState(false);
 
   // Hide footer inside dashboard
   if (pathname.startsWith('/dashboard')) return null;
 
+  const handleSubscribe = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (newsletterEmail) {
+      setSubscribed(true);
+      setNewsletterEmail('');
+    }
+  };
+
   return (
     <footer className="bg-[#07090c] border-t border-gray-800/80 text-gray-400 text-sm">
-      {/* Top Banner Callout */}
-      <div className="border-b border-gray-800/60 bg-gradient-to-r from-cyan-950/40 via-blue-950/20 to-purple-950/40 py-12 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
+      {/* Top Banner Callout with Social Media & GitHub Banner */}
+      <div className="border-b border-gray-800/60 bg-gradient-to-r from-cyan-950/50 via-blue-950/30 to-purple-950/50 py-12 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto flex flex-col lg:flex-row items-center justify-between gap-8">
           <div>
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-950/80 border border-cyan-500/30 text-cyan-300 text-xs font-mono mb-3">
               <Zap className="w-3.5 h-3.5 text-cyan-400" />
-              <span>OEM & Custom Engineering Solutions</span>
+              <span>OEM & Open Hardware Engineering</span>
             </div>
-            <h3 className="text-2xl font-extrabold text-white tracking-tight">
-              Ready to power your next EV, ESS or Industrial Product?
+            <h3 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
+              Join the AXQUBIT Hardware & Energy Revolution
             </h3>
-            <p className="text-gray-400 mt-1 text-sm max-w-2xl">
-              Consult with AXQUBIT R&D engineers for custom BMS firmware, high-voltage battery architecture, and power electronics design.
+            <p className="text-gray-300 mt-1 text-sm max-w-2xl">
+              Engineered in Vadodara, Gujarat 🇮🇳. Star our GitHub repositories or consult with AXQUBIT R&D engineers for custom battery architecture, active balancing, and power electronics.
             </p>
           </div>
-          <div className="flex items-center gap-3">
+
+          <div className="flex flex-wrap items-center gap-3">
+            <a
+              href="https://github.com/SAHIL-3108/axqubit"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="px-5 py-3 text-xs font-bold font-mono text-white bg-gray-900 hover:bg-gray-800 border border-cyan-500/50 hover:border-cyan-400 rounded-xl shadow-lg transition-all flex items-center gap-2 whitespace-nowrap"
+            >
+              <GithubIcon className="w-4 h-4 text-cyan-400" />
+              <span>GitHub Base</span>
+              <Star className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
+            </a>
+
             <Link
               href="/partners/oem"
-              className="px-5 py-3 text-xs font-bold font-mono text-black bg-cyan-400 hover:bg-cyan-300 rounded-lg shadow-lg shadow-cyan-500/20 transition-all flex items-center gap-2 whitespace-nowrap"
+              className="px-5 py-3 text-xs font-bold font-mono text-black bg-cyan-400 hover:bg-cyan-300 rounded-xl shadow-lg shadow-cyan-500/20 transition-all flex items-center gap-2 whitespace-nowrap"
             >
               Request OEM Quote <ArrowRight className="w-4 h-4" />
-            </Link>
-            <Link
-              href="/company/contact"
-              className="px-5 py-3 text-xs font-mono text-gray-300 hover:text-white border border-gray-700 hover:border-gray-500 rounded-lg transition-all whitespace-nowrap"
-            >
-              Contact Engineering
             </Link>
           </div>
         </div>
@@ -59,7 +77,7 @@ export default function Footer() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10">
           
-          {/* Brand & Address Column */}
+          {/* Brand, Address & Social Icons Column */}
           <div className="lg:col-span-2 space-y-4">
             <Link href="/" className="flex items-center gap-2.5">
               <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-cyan-400 via-cyan-500 to-blue-600 flex items-center justify-center shadow-lg shadow-cyan-500/25">
@@ -79,10 +97,57 @@ export default function Footer() {
               AXQUBIT Technologies is an innovation-driven battery management, industrial power electronics, and edge AI hardware manufacturer headquartered in Vadodara, Gujarat, India.
             </p>
 
+            {/* Social Media Links Bar */}
+            <div className="pt-1 flex items-center gap-3">
+              <a
+                href="https://github.com/SAHIL-3108/axqubit"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-9 h-9 rounded-lg bg-gray-900 border border-gray-800 flex items-center justify-center text-gray-300 hover:text-cyan-400 hover:border-cyan-500/50 transition-all"
+                title="GitHub Repo"
+              >
+                <GithubIcon className="w-4 h-4" />
+              </a>
+              <a
+                href="https://linkedin.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-9 h-9 rounded-lg bg-gray-900 border border-gray-800 flex items-center justify-center text-gray-300 hover:text-cyan-400 hover:border-cyan-500/50 transition-all"
+                title="LinkedIn"
+              >
+                <LinkedinIcon className="w-4 h-4" />
+              </a>
+              <a
+                href="https://x.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-9 h-9 rounded-lg bg-gray-900 border border-gray-800 flex items-center justify-center text-gray-300 hover:text-cyan-400 hover:border-cyan-500/50 transition-all"
+                title="Twitter / X"
+              >
+                <TwitterXIcon className="w-4 h-4" />
+              </a>
+              <a
+                href="https://youtube.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-9 h-9 rounded-lg bg-gray-900 border border-gray-800 flex items-center justify-center text-gray-300 hover:text-rose-400 hover:border-rose-500/50 transition-all"
+                title="YouTube Channel"
+              >
+                <YoutubeIcon className="w-4 h-4" />
+              </a>
+              <a
+                href="mailto:contact@axqubit.com"
+                className="w-9 h-9 rounded-lg bg-gray-900 border border-gray-800 flex items-center justify-center text-gray-300 hover:text-cyan-400 hover:border-cyan-500/50 transition-all"
+                title="Email Us"
+              >
+                <Mail className="w-4 h-4" />
+              </a>
+            </div>
+
             <div className="space-y-2 pt-2 text-xs font-mono text-gray-300">
               <div className="flex items-start gap-2.5">
                 <MapPin className="w-4 h-4 text-cyan-400 shrink-0 mt-0.5" />
-                <span>AXQUBIT Tech Park, GIDC Industrial Estate, Vadodara, Gujarat 390010, India</span>
+                <span>AXQUBIT Tech Park, GIDC Industrial Estate, Vadodara, Gujarat 390010, India 🇮🇳</span>
               </div>
               <div className="flex items-center gap-2.5">
                 <Mail className="w-4 h-4 text-cyan-400 shrink-0" />
@@ -94,8 +159,32 @@ export default function Footer() {
               </div>
             </div>
 
+            {/* Newsletter Box */}
+            <div className="pt-2">
+              <div className="text-xs font-mono font-bold text-white mb-2">Subscribe to Hardware Engineering Notes</div>
+              {subscribed ? (
+                <div className="text-xs font-mono text-emerald-400 flex items-center gap-1.5 p-2 bg-emerald-950/40 border border-emerald-500/30 rounded-lg">
+                  <CheckCircle2 className="w-4 h-4" /> Thank you for subscribing!
+                </div>
+              ) : (
+                <form onSubmit={handleSubscribe} className="flex gap-2">
+                  <input
+                    type="email"
+                    required
+                    placeholder="engineer@company.com"
+                    value={newsletterEmail}
+                    onChange={(e) => setNewsletterEmail(e.target.value)}
+                    className="bg-gray-900 border border-gray-800 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-cyan-400 flex-1 font-mono"
+                  />
+                  <button type="submit" className="px-3 py-2 bg-cyan-400 hover:bg-cyan-300 text-black font-mono font-bold text-xs rounded-lg transition-colors flex items-center gap-1">
+                    <Send className="w-3 h-3" />
+                  </button>
+                </form>
+              )}
+            </div>
+
             {/* Certifications Badges */}
-            <div className="pt-3 flex flex-wrap gap-2">
+            <div className="pt-2 flex flex-wrap gap-2">
               <span className="px-2.5 py-1 bg-gray-900 border border-gray-800 rounded text-[11px] font-mono text-emerald-400 flex items-center gap-1">
                 <CheckCircle2 className="w-3 h-3 text-emerald-400" /> ISO 9001:2015
               </span>
@@ -202,9 +291,19 @@ export default function Footer() {
           {/* Company & Resources Column */}
           <div>
             <h4 className="text-xs font-mono font-bold text-white uppercase tracking-wider mb-4 border-b border-gray-800 pb-2">
-              Company & Portal
+              GitHub & Company
             </h4>
             <ul className="space-y-2.5 text-xs">
+              <li>
+                <a href="https://github.com/SAHIL-3108/axqubit" target="_blank" rel="noopener noreferrer" className="text-cyan-400 hover:underline font-bold flex items-center gap-1">
+                  <GithubIcon className="w-3.5 h-3.5" /> GitHub: SAHIL-3108/axqubit
+                </a>
+              </li>
+              <li>
+                <a href="https://github.com/SAHIL-3108/axqubit-bms-dashboard" target="_blank" rel="noopener noreferrer" className="text-cyan-400 hover:underline font-bold flex items-center gap-1">
+                  <GithubIcon className="w-3.5 h-3.5" /> GitHub: axqubit-bms-dashboard
+                </a>
+              </li>
               <li>
                 <Link href="/company/about" className="hover:text-cyan-400 transition-colors">
                   Why AXQUBIT (About Us)
@@ -246,11 +345,6 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
-                <Link href="/blog" className="hover:text-cyan-400 transition-colors">
-                  Engineering Notes & Blog
-                </Link>
-              </li>
-              <li>
                 <Link href="/company/careers" className="hover:text-cyan-400 transition-colors">
                   Careers at AXQUBIT
                 </Link>
@@ -265,10 +359,12 @@ export default function Footer() {
           <div>
             © {new Date().getFullYear()} AXQUBIT Technologies Pvt. Ltd. All rights reserved. Made in India 🇮🇳
           </div>
-          <div className="flex items-center gap-6">
+          <div className="flex flex-wrap items-center gap-6">
             <Link href="/company/contact" className="hover:text-gray-300">Privacy Policy</Link>
             <Link href="/company/contact" className="hover:text-gray-300">Terms of Supply</Link>
-            <Link href="/resources/documents" className="hover:text-gray-300">Certifications</Link>
+            <a href="https://github.com/SAHIL-3108/axqubit" target="_blank" rel="noopener noreferrer" className="text-cyan-400 hover:underline flex items-center gap-1">
+              <GithubIcon className="w-3.5 h-3.5" /> Open Source Repos
+            </a>
             <Link href="/dashboard" className="text-cyan-400 hover:underline">SaaS Login</Link>
           </div>
         </div>

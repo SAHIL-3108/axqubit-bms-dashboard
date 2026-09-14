@@ -11,18 +11,19 @@ import {
   ShieldCheck, 
   Eye, 
   Layers, 
-  Wrench, 
   Building2, 
   FileText, 
   Users, 
   ShoppingBag, 
   LayoutDashboard, 
-  Search, 
   Menu, 
   X,
-  Sparkles,
-  ArrowRight
+  ArrowRight,
+  Mail,
+  MessageSquare,
+  Star
 } from 'lucide-react';
+import { GithubIcon, LinkedinIcon, TwitterXIcon } from './SocialIcons';
 
 export default function HeaderNav() {
   const pathname = usePathname();
@@ -30,7 +31,7 @@ export default function HeaderNav() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
 
-  // Is dashboard route
+  // Hide on SaaS dashboard routes
   const isDashboard = pathname.startsWith('/dashboard');
 
   useEffect(() => {
@@ -46,23 +47,50 @@ export default function HeaderNav() {
   return (
     <header className={`sticky top-0 z-50 transition-all duration-300 ${
       scrolled 
-        ? 'bg-[#0a0c0f]/90 backdrop-blur-md border-b border-cyan-500/20 shadow-lg shadow-cyan-950/20' 
-        : 'bg-[#0a0c0f] border-b border-gray-800/60'
+        ? 'bg-[#0a0c0f]/95 backdrop-blur-xl border-b border-cyan-500/30 shadow-2xl shadow-cyan-950/40' 
+        : 'bg-[#0a0c0f] border-b border-gray-800/80'
     }`}>
-      {/* Top Banner Bar */}
-      <div className="bg-gradient-to-r from-cyan-950 via-[#0d1520] to-cyan-950 text-cyan-300 text-xs py-1.5 px-4 text-center border-b border-cyan-900/30 font-mono flex items-center justify-center gap-2">
-        <span className="inline-block w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-        <span>AXQUBIT BMS6000 Series II Released with Active Balancing & Dual CAN Interface</span>
-        <Link href="/bms/smart-series" className="underline font-semibold hover:text-cyan-100 transition-colors ml-2 inline-flex items-center gap-1">
-          Explore Spec Sheet <ArrowRight className="w-3 h-3" />
-        </Link>
+      {/* Top Banner Bar with Social Media & GitHub Link */}
+      <div className="bg-gradient-to-r from-cyan-950 via-[#0d1624] to-cyan-950 text-cyan-300 text-xs py-1.5 px-4 border-b border-cyan-900/40 font-mono flex flex-wrap items-center justify-between gap-2">
+        <div className="flex items-center gap-2 mx-auto sm:mx-0">
+          <span className="inline-block w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+          <span>AXQUBIT Open Hardware & IoT Platform</span>
+          <span className="text-gray-500">|</span>
+          <a 
+            href="https://github.com/SAHIL-3108/axqubit" 
+            target="_blank" 
+            rel="noopener noreferrer" 
+            className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded bg-cyan-900/60 border border-cyan-500/40 text-cyan-200 hover:text-white transition-colors"
+          >
+            <GithubIcon className="w-3 h-3 text-cyan-400" />
+            <span>github.com/SAHIL-3108/axqubit</span>
+            <Star className="w-2.5 h-2.5 text-amber-400 fill-amber-400 ml-0.5" />
+          </a>
+        </div>
+
+        {/* Social Links Right */}
+        <div className="hidden md:flex items-center gap-4 text-gray-400">
+          <a href="https://github.com/SAHIL-3108/axqubit" target="_blank" rel="noopener noreferrer" className="hover:text-cyan-400 transition-colors flex items-center gap-1" title="GitHub Base">
+            <GithubIcon className="w-3.5 h-3.5" /> <span className="text-[11px]">GitHub</span>
+          </a>
+          <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" className="hover:text-cyan-400 transition-colors flex items-center gap-1" title="LinkedIn">
+            <LinkedinIcon className="w-3.5 h-3.5" /> <span className="text-[11px]">LinkedIn</span>
+          </a>
+          <a href="https://x.com" target="_blank" rel="noopener noreferrer" className="hover:text-cyan-400 transition-colors flex items-center gap-1" title="Twitter / X">
+            <TwitterXIcon className="w-3.5 h-3.5" /> <span className="text-[11px]">X</span>
+          </a>
+          <a href="mailto:contact@axqubit.com" className="hover:text-cyan-400 transition-colors flex items-center gap-1" title="Email Us">
+            <Mail className="w-3.5 h-3.5 text-cyan-400" /> <span className="text-[11px]">contact@axqubit.com</span>
+          </a>
+        </div>
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
+          
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2.5 group">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-cyan-400 via-cyan-500 to-blue-600 flex items-center justify-center shadow-lg shadow-cyan-500/25 group-hover:shadow-cyan-400/40 transition-all duration-300">
+            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-cyan-400 via-cyan-500 to-blue-600 flex items-center justify-center shadow-lg shadow-cyan-500/25 group-hover:shadow-cyan-400/50 group-hover:scale-105 transition-all duration-300">
               <Zap className="w-5 h-5 text-black font-bold fill-black" />
             </div>
             <div className="flex flex-col">
@@ -70,14 +98,14 @@ export default function HeaderNav() {
                 AXQUBIT
               </span>
               <span className="text-[10px] tracking-widest text-cyan-400 font-mono -mt-1 uppercase">
-                Power & AI Tech
+                Hardware & AI Labs
               </span>
             </div>
           </Link>
 
           {/* Desktop Navigation */}
           <nav className="hidden lg:flex items-center gap-1">
-            {/* BMS Hub Dropdown */}
+            {/* BMS Line Dropdown */}
             <div 
               className="relative group"
               onMouseEnter={() => setActiveDropdown('bms')}
@@ -126,7 +154,7 @@ export default function HeaderNav() {
               )}
             </div>
 
-            {/* Power Electronics Dropdown */}
+            {/* Power Systems Dropdown */}
             <div 
               className="relative group"
               onMouseEnter={() => setActiveDropdown('power')}
@@ -265,13 +293,15 @@ export default function HeaderNav() {
 
           {/* Right Action Buttons */}
           <div className="hidden lg:flex items-center gap-3">
-            <Link
-              href="/store"
-              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-mono text-gray-300 hover:text-white border border-gray-700/60 rounded-lg hover:border-gray-500 transition-colors"
+            <a
+              href="https://github.com/SAHIL-3108/axqubit"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-mono text-gray-300 hover:text-white bg-gray-900 border border-gray-700/80 hover:border-cyan-500 rounded-lg transition-all"
             >
-              <ShoppingBag className="w-3.5 h-3.5 text-cyan-400" />
-              <span>Sample Store</span>
-            </Link>
+              <GithubIcon className="w-3.5 h-3.5 text-cyan-400" />
+              <span>GitHub</span>
+            </a>
 
             <Link
               href="/dashboard"
@@ -284,6 +314,14 @@ export default function HeaderNav() {
 
           {/* Mobile Menu Button */}
           <div className="flex lg:hidden items-center gap-2">
+            <a
+              href="https://github.com/SAHIL-3108/axqubit"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="p-2 text-gray-300 hover:text-white bg-gray-900 border border-gray-800 rounded-lg"
+            >
+              <GithubIcon className="w-4 h-4 text-cyan-400" />
+            </a>
             <Link
               href="/dashboard"
               className="flex items-center gap-1 px-3 py-1.5 text-xs font-bold text-black bg-cyan-400 rounded-lg"
@@ -298,6 +336,7 @@ export default function HeaderNav() {
               {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
             </button>
           </div>
+
         </div>
       </div>
 
@@ -336,6 +375,14 @@ export default function HeaderNav() {
           </div>
 
           <div className="space-y-1 text-sm font-medium">
+            <a
+              href="https://github.com/SAHIL-3108/axqubit"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-2 px-3 py-2 rounded-lg text-cyan-400 hover:bg-gray-800 font-mono text-xs font-bold"
+            >
+              <GithubIcon className="w-4 h-4" /> GitHub Repository (SAHIL-3108/axqubit)
+            </a>
             <Link 
               href="/applications" 
               onClick={() => setMobileMenuOpen(false)}
